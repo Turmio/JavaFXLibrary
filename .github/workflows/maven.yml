@@ -15,7 +15,9 @@ jobs:
     #    java-version: 11
     #    java-package: jdk+fx
     - name: Install JDK
-      run: sudo apt-get update && sudo apt install openjdk-8-jdk openjfx=8u161-b12-1ubuntu2 libopenjfx-java=8u161-b12-1ubuntu2 libopenjfx-jni=8u161-b12-1ubuntu2  
+      run: sudo apt-get update && sudo apt install openjdk-8-jdk openjfx=8u161-b12-1ubuntu2 libopenjfx-java=8u161-b12-1ubuntu2 libopenjfx-jni=8u161-b12-1ubuntu2
+    - name: Set Default java
+      run: sudo update-java-alternatives -s /usr/lib/jvm/java-1.8.0-openjdk-amd64
     - name: Install virtual display and window manager
       run: sudo apt-get install xvfb metacity
     - name: Run tests in virtual display with window manager

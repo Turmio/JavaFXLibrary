@@ -14,8 +14,13 @@ jobs:
     #  with:
     #    java-version: 11
     #    java-package: jdk+fx
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+        java-package: jdk+fx
     - name: Install JDK
-      run: sudo apt-get update && sudo apt install openjdk-8-jdk openjfx=8u161-b12-1ubuntu2 libopenjfx-java=8u161-b12-1ubuntu2 libopenjfx-jni=8u161-b12-1ubuntu2
+      run: sudo apt-get update && sudo apt install openjfx=8u161-b12-1ubuntu2 libopenjfx-java=8u161-b12-1ubuntu2 libopenjfx-jni=8u161-b12-1ubuntu2
     - name: Set Default java
       run: sudo update-java-alternatives -s /usr/lib/jvm/java-1.8.0-openjdk-amd64
     - name: Install virtual display and window manager

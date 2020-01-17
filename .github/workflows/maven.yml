@@ -15,7 +15,7 @@ jobs:
     - name: Install virtual display and window manager
       run: sudo apt-get update && sudo apt-get install xvfb metacity
     - name: Run tests in virtual display with window manager
-      run: xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" sh -c "metacity & mvn -B verify"
+      run: xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" --server-num=1 sh -c "metacity & mvn -B verify"
     - uses: actions/upload-artifact@v1
       if: failure()
       with:

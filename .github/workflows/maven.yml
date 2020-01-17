@@ -7,14 +7,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        # https://bugs.launchpad.net/ubuntu/+source/openjfx/+bug/1825054
-        java-version: 8.0.162
-        java-package: jdk+fx 
+    # Disabled before JKD 11 support 
+    # https://bugs.launchpad.net/ubuntu/+source/openjfx/+bug/1825054
+    #- name: Set up JDK 1.8
+    #  uses: actions/setup-java@v1
+    #  with:
+    #    java-version: 11
+    #    java-package: jdk+fx
+    - name: Install JDK
+      run: sudo apt-get update && sudo apt install openjdk-8-jdk openjfx=8u161-b12-1ubuntu2 libopenjfx-java=8u161-b12-1ubuntu2 libopenjfx-jni=8u161-b12-1ubuntu2  
     - name: Install virtual display and window manager
-      run: sudo apt-get update && sudo apt-get install xvfb metacity
+      run: sudo apt-get install xvfb metacity
     - name: Run tests in virtual display with window manager
       run: xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" --server-num=1 sh -c 'metacity --replace --display $DISPLAY & mvn -B verify'
     - uses: actions/upload-artifact@v1

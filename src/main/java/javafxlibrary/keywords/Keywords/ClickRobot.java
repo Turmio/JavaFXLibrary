@@ -56,7 +56,7 @@ public class ClickRobot extends TestFxAdapter {
                 target.getClass(), Motion.class, MouseButton.class);
 
         try {
-            return (FxRobotInterface) method.invoke(robot, target, getMotion(motion), new MouseButton[]{MouseButton.PRIMARY});
+            return robot.interact(() -> (FxRobotInterface) method.invoke(robot, target, getMotion(motion), new MouseButton[]{MouseButton.PRIMARY}));
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new JavaFXLibraryNonFatalException("Could not execute click on using locator \"" + locator + "\" " +
                     "and motion " + motion + ": " + e.getCause().getMessage(), e);
@@ -79,7 +79,7 @@ public class ClickRobot extends TestFxAdapter {
         RobotLog.info("Right clicking on target \"" + target + "\", motion=\"" + getMotion(motion) + "\"");
         Method method = MethodUtils.getMatchingAccessibleMethod(robot.getClass(), "rightClickOn", target.getClass(), Motion.class);
         try {
-            return (FxRobotInterface) method.invoke(robot, target, getMotion(motion));
+            return robot.interact(() -> (FxRobotInterface) method.invoke(robot, target, getMotion(motion)));
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new JavaFXLibraryNonFatalException("Could not execute right click on using locator \"" + locator + "\" " +
                     "and motion " + motion + ": " + e.getCause().getMessage(), e);
@@ -103,7 +103,7 @@ public class ClickRobot extends TestFxAdapter {
                 target.getClass(), Motion.class, MouseButton.class);
 
         try {
-            return (FxRobotInterface) method.invoke(robot, target, getMotion(motion), new MouseButton[]{MouseButton.PRIMARY});
+            return robot.interact(() -> (FxRobotInterface) method.invoke(robot, target, getMotion(motion), new MouseButton[]{MouseButton.PRIMARY}));
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new JavaFXLibraryNonFatalException("Could not execute double click on using locator \"" + locator + "\" " +
                     "and motion " + motion + ": " + e.getCause().getMessage(), e);
@@ -121,7 +121,7 @@ public class ClickRobot extends TestFxAdapter {
     public FxRobotInterface ClickOnMouseButton(String... buttons) {
         try {
             RobotLog.info("Clicking mouse buttons \"" + Arrays.toString(buttons) + "\"");
-            return robot.clickOn(getMouseButtons(buttons));
+            return robot.interact(() -> robot.clickOn(getMouseButtons(buttons)));
         } catch (Exception e) {
             if (e instanceof JavaFXLibraryNonFatalException) {
                 throw e;
@@ -136,7 +136,7 @@ public class ClickRobot extends TestFxAdapter {
     public FxRobotInterface doubleClickOnMouseButton(String... buttons) {
         try {
             RobotLog.info("Double clicking mouse buttons \"" + Arrays.toString(buttons) + "\"");
-            return robot.doubleClickOn(getMouseButtons(buttons));
+            return robot.interact(() -> robot.doubleClickOn(getMouseButtons(buttons)));
         } catch (Exception e) {
             if (e instanceof JavaFXLibraryNonFatalException) {
                 throw e;
@@ -148,7 +148,7 @@ public class ClickRobot extends TestFxAdapter {
     @RobotKeyword("Clicks right mouse button on whatever is under the mouse pointer")
     public FxRobotInterface rightClickOnMouseButton() {
         try {
-            return robot.rightClickOn();
+            return robot.interact(() -> robot.rightClickOn());
         } catch (Exception e) {
             if (e instanceof JavaFXLibraryNonFatalException) {
                 throw e;
@@ -166,7 +166,7 @@ public class ClickRobot extends TestFxAdapter {
         checkClickLocation(x, y);
 
         try {
-            return robot.clickOn((double) x, (double) y, getMotion(motion), MouseButton.PRIMARY);
+            return robot.interact(() -> robot.clickOn((double) x, (double) y, getMotion(motion), MouseButton.PRIMARY));
         } catch (Exception e) {
             if (e instanceof JavaFXLibraryNonFatalException) {
                 throw e;
@@ -189,7 +189,7 @@ public class ClickRobot extends TestFxAdapter {
         checkClickLocation(x, y);
         try {
             RobotLog.info("Double clicking on coordinates x=\"" + x + "\"" + ", y=\"" + y + "\"" + " and motion=\"" + motion + "\"");
-            return robot.doubleClickOn((double) x, (double) y, getMotion(motion), MouseButton.PRIMARY);
+            return robot.interact(() -> robot.doubleClickOn((double) x, (double) y, getMotion(motion), MouseButton.PRIMARY));
         } catch (Exception e) {
             if (e instanceof JavaFXLibraryNonFatalException) {
                 throw e;
@@ -212,7 +212,7 @@ public class ClickRobot extends TestFxAdapter {
         checkClickLocation(x, y);
         try {
             RobotLog.info("Right clicking on coordinates x=\"" + x + "\"" + ", y=\"" + y + "\"" + " and motion=\"" + motion + "\"");
-            return robot.rightClickOn((double) x, (double) y, getMotion(motion));
+            return robot.interact(() -> robot.rightClickOn((double) x, (double) y, getMotion(motion)));
         } catch (Exception e) {
             if (e instanceof JavaFXLibraryNonFatalException) {
                 throw e;

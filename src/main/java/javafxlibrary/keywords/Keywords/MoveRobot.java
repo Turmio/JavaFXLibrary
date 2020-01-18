@@ -57,7 +57,7 @@ public class MoveRobot extends TestFxAdapter {
         Method method = MethodUtils.getMatchingAccessibleMethod(robot.getClass(), "moveTo", locator.getClass(), Motion.class);
 
         try {
-            return (FxRobotInterface) method.invoke(robot, locator, getMotion(motion));
+            return robot.interact(() -> (FxRobotInterface) method.invoke(robot, locator, getMotion(motion)));
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new JavaFXLibraryNonFatalException("Could not execute move to using locator \"" + locator + "\" " +
                     "and motion " + motion + ": " + e.getCause().getMessage(), e);
@@ -89,7 +89,7 @@ public class MoveRobot extends TestFxAdapter {
 
     @RobotKeywordOverload
     public FxRobotInterface moveBy(int x, int y) {
-        return robot.moveBy((double) x, (double) y, Motion.DIRECT);
+        return robot.interact(() -> robot.moveBy((double) x, (double) y, Motion.DIRECT));
     }
 
     @RobotKeyword("Moves mouse to given coordinates.\n\n"
@@ -105,7 +105,7 @@ public class MoveRobot extends TestFxAdapter {
     public FxRobotInterface moveToCoordinates(int x, int y, String motion) {
         try {
             RobotLog.info("Moving to coordinates: [" + x + ", " + y + "] using motion: \"" + motion + "\"");
-            return robot.moveTo((double) x, (double) y, HelperFunctions.getMotion(motion));
+            return robot.interact(() -> robot.moveTo((double) x, (double) y, HelperFunctions.getMotion(motion)));
         } catch (Exception e) {
             if (e instanceof JavaFXLibraryNonFatalException)
                 throw e;

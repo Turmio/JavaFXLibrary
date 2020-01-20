@@ -19,6 +19,7 @@ package javafxlibrary.keywords.Keywords;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafxlibrary.exceptions.JavaFXLibraryNonFatalException;
@@ -37,13 +38,24 @@ public class WindowTargeting extends TestFxAdapter {
             + "\nExample: \n"
             + "| ${window}= | Get Target Window | \n")
     public Object getTargetWindow() {
-        try {
-            return HelperFunctions.mapObject(robot.targetWindow());
-        } catch (Exception e) {
-            if(e instanceof JavaFXLibraryNonFatalException)
-                throw e;
-            throw new JavaFXLibraryNonFatalException("Unable to find target window.", e);
+        AtomicReference<Object> targetWindow = new AtomicReference<>();
+        AtomicReference<JavaFXLibraryNonFatalException> error = new AtomicReference<>();
+
+        robot.interact(() -> {
+            try {
+                targetWindow.set(HelperFunctions.mapObject(robot.targetWindow()));
+            } catch (Exception e) {
+                if(e instanceof JavaFXLibraryNonFatalException)
+                    error.set((JavaFXLibraryNonFatalException)e);
+                error.set(new JavaFXLibraryNonFatalException("Unable to find target window.", e));
+            }
+        });
+
+        if (error.get() != null) {
+            throw error.get();
         }
+
+        return targetWindow.get();
     }
 
     @RobotKeyword("Sets active target window\n\n"
@@ -68,33 +80,41 @@ public class WindowTargeting extends TestFxAdapter {
     public void setTargetWindow(Object locator) {
         RobotLog.info("Setting target window according to locator \"" + locator + "\"");
 
-        try {
-            if (locator instanceof String) {
-                if (((String) locator).startsWith("pattern=")){
-                    locator = ((String) locator).replace("pattern=","");
-                    RobotLog.debug("String which is pattern, converting...");
-                    setTargetWindow(Pattern.compile((String)locator));
-                } else if (((String) locator).matches("[0-9]+")) {
-                    RobotLog.debug("String which is integer, converting...");
-                    setTargetWindow(Integer.parseInt((String)locator));
-                } else {
-                    if (((String) locator).startsWith("title="))
-                        locator = ((String) locator).replace("title=", "");
-                    robot.targetWindow((String) locator);
-                }
+        if (locator instanceof String) {
+            if (((String) locator).startsWith("pattern=")){
+                locator = ((String) locator).replace("pattern=","");
+                RobotLog.debug("String which is pattern, converting...");
+                setTargetWindow(Pattern.compile((String)locator));
+            } else if (((String) locator).matches("[0-9]+")) {
+                RobotLog.debug("String which is integer, converting...");
+                setTargetWindow(Integer.parseInt((String)locator));
             } else {
-                Method method = MethodUtils.getMatchingAccessibleMethod(robot.getClass(), "targetWindow", locator.getClass());
-                method.invoke(robot, locator);
+                String resolvedLocator = (((String) locator).startsWith("title="))
+                        ? ((String) locator).replace("title=", "")
+                        : (String) locator;
+                robot.interact(() -> robot.targetWindow(resolvedLocator));
             }
-
-            Platform.runLater((robot.targetWindow())::requestFocus);
-
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new JavaFXLibraryNonFatalException("Could not execute set target window using locator \"" + locator + "\"");
-        } catch (Exception e) {
-            if (e instanceof JavaFXLibraryNonFatalException)
-                throw e;
-            throw new JavaFXLibraryNonFatalException("Unable to set target window: \"" + locator.toString() + "\"", e);
+        } else {
+            AtomicReference<JavaFXLibraryNonFatalException> error = new AtomicReference<>();
+            Object resolvedLocator = locator;
+            robot.interact(() ->{
+                try {
+                    Method method = MethodUtils.getMatchingAccessibleMethod(robot.getClass(), "targetWindow", resolvedLocator.getClass());
+                    method.invoke(robot, resolvedLocator);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    error.set(new JavaFXLibraryNonFatalException("Could not execute set target window using locator \"" + resolvedLocator + "\""));
+                } catch (Exception e) {
+                    if (e instanceof JavaFXLibraryNonFatalException)
+                        error.set((JavaFXLibraryNonFatalException) e);
+                    error.set(new JavaFXLibraryNonFatalException("Unable to set target window: \"" + resolvedLocator.toString() + "\"", e));
+                }
+            });
+            if(error.get() != null) {
+                throw error.get();
+            }
         }
+
+        robot.interact(() -> robot.targetWindow().requestFocus());
+
     }
 }

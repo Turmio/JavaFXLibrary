@@ -93,7 +93,7 @@ public class ConvenienceKeywords extends TestFxAdapter {
         RobotLog.info("Bringing following Stage to front: \"" + stage + "\"");
         try {
             robot.targetWindow(stage);
-            Platform.runLater(() -> stage.toFront());
+            robot.interact(() -> stage.toFront());
         } catch (Exception e) {
             throw new JavaFXLibraryNonFatalException("Unable to bring stage to front.", e);
         }

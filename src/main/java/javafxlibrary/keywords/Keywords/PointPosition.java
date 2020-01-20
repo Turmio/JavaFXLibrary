@@ -44,9 +44,11 @@ public class PointPosition extends TestFxAdapter {
             try {
                 robot.targetPos(HelperFunctions.getPosition(pointPosition));
             } catch (Exception e) {
-                if (e instanceof JavaFXLibraryNonFatalException)
-                    error.set((JavaFXLibraryNonFatalException)e);
-                error.set(new JavaFXLibraryNonFatalException("Unable to set target position: \"" + pointPosition + "\"", e));
+                if (e instanceof JavaFXLibraryNonFatalException) {
+                    error.set((JavaFXLibraryNonFatalException)e);   
+                } else {
+                    error.set(new JavaFXLibraryNonFatalException("Unable to set target position: \"" + pointPosition + "\"", e));
+                }
             }
         });
 

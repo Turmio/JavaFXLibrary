@@ -46,9 +46,11 @@ public class WindowTargeting extends TestFxAdapter {
             try {
                 targetWindow.set(HelperFunctions.mapObject(robot.targetWindow()));
             } catch (Exception e) {
-                if(e instanceof JavaFXLibraryNonFatalException)
-                    error.set((JavaFXLibraryNonFatalException)e);
-                error.set(new JavaFXLibraryNonFatalException("Unable to find target window.", e));
+                if(e instanceof JavaFXLibraryNonFatalException) {
+                    error.set((JavaFXLibraryNonFatalException) e);
+                } else {
+                    error.set(new JavaFXLibraryNonFatalException("Unable to find target window.", e));
+                }
             }
         });
 
@@ -105,9 +107,11 @@ public class WindowTargeting extends TestFxAdapter {
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     error.set(new JavaFXLibraryNonFatalException("Could not execute set target window using locator \"" + resolvedLocator + "\""));
                 } catch (Exception e) {
-                    if (e instanceof JavaFXLibraryNonFatalException)
+                    if (e instanceof JavaFXLibraryNonFatalException) {
                         error.set((JavaFXLibraryNonFatalException) e);
-                    error.set(new JavaFXLibraryNonFatalException("Unable to set target window: \"" + resolvedLocator.toString() + "\"", e));
+                    } else {
+                        error.set(new JavaFXLibraryNonFatalException("Unable to set target window: \"" + resolvedLocator.toString() + "\"", e));
+                    }
                 }
             });
             if(error.get() != null) {

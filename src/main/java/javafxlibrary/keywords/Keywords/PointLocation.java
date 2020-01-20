@@ -84,9 +84,11 @@ public class PointLocation extends TestFxAdapter {
             try {
                 point.set(HelperFunctions.mapObject(robot.point((double) x, (double) y)));
             } catch (Exception e) {
-                if(e instanceof JavaFXLibraryNonFatalException)
-                    error.set((JavaFXLibraryNonFatalException)e);
-                error.set(new JavaFXLibraryNonFatalException("Unable to point to coordinates: [" + x + ", " + y + "]", e));
+                if(e instanceof JavaFXLibraryNonFatalException) {
+                    error.set((JavaFXLibraryNonFatalException) e);
+                } else {
+                    error.set(new JavaFXLibraryNonFatalException("Unable to point to coordinates: [" + x + ", " + y + "]", e));
+                }
             }
         });
 

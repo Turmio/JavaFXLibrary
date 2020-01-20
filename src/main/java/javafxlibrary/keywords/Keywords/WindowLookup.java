@@ -45,9 +45,11 @@ public class WindowLookup extends TestFxAdapter {
                 try {
                     windows.set(HelperFunctions.mapObjects(robot.listWindows()));
                 } catch (Exception e) {
-                    if(e instanceof JavaFXLibraryNonFatalException)
-                        error.set((JavaFXLibraryNonFatalException)e);
-                    error.set(new JavaFXLibraryNonFatalException("Unable to list windows", e));
+                    if(e instanceof JavaFXLibraryNonFatalException) {
+                        error.set((JavaFXLibraryNonFatalException) e);
+                    } else {
+                        error.set(new JavaFXLibraryNonFatalException("Unable to list windows", e));
+                    }
                 }
             });
             if(error.get() != null) {
@@ -64,9 +66,11 @@ public class WindowLookup extends TestFxAdapter {
             try {
                 targetWindows.set(HelperFunctions.mapObjects(robot.listTargetWindows()));
             } catch (Exception e) {
-                if(e instanceof JavaFXLibraryNonFatalException)
-                    error.set((JavaFXLibraryNonFatalException)e);
-                error.set(new JavaFXLibraryNonFatalException("Unable to list target windows", e));
+                if(e instanceof JavaFXLibraryNonFatalException) {
+                    error.set((JavaFXLibraryNonFatalException) e);
+                } else {
+                    error.set(new JavaFXLibraryNonFatalException("Unable to list target windows", e));
+                }
             }
         });
         if(error.get() != null) {
@@ -117,9 +121,11 @@ public class WindowLookup extends TestFxAdapter {
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         error.set(new JavaFXLibraryNonFatalException("Could not execute get window using locator \"" + locator + "\""));
                     } catch (Exception e) {
-                        if (e instanceof JavaFXLibraryNonFatalException)
-                            error.set((JavaFXLibraryNonFatalException)e);
-                        error.set(new JavaFXLibraryNonFatalException("Unable to find window: \"" + locator.toString() + "\"", e));
+                        if (e instanceof JavaFXLibraryNonFatalException) {
+                            error.set((JavaFXLibraryNonFatalException) e);
+                        } else {
+                            error.set(new JavaFXLibraryNonFatalException("Unable to find window: \"" + locator.toString() + "\"", e));
+                        }
                     }
                 });
             }

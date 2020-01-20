@@ -18,7 +18,9 @@
 package javafxlibrary.utils;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javafx.application.Application;
 import javafxlibrary.exceptions.JavaFXLibraryNonFatalException;
 import org.testfx.api.FxRobotContext;
@@ -42,7 +44,7 @@ public class TestFxAdapter {
     protected static String logImages = "embedded";
 
     // internal book keeping for objects
-    public static HashMap objectMap = new HashMap();
+    public static Map<String, Object> objectMap = new ConcurrentHashMap<>();
 
     public void createNewSession(String appName, String... appArgs) {
 

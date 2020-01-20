@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import javafx.application.Platform;
+import javafx.stage.Stage;
 import javafxlibrary.exceptions.JavaFXLibraryNonFatalException;
 import javafxlibrary.utils.HelperFunctions;
 import javafxlibrary.utils.RobotLog;
@@ -114,7 +115,12 @@ public class WindowTargeting extends TestFxAdapter {
             }
         }
 
-        robot.interact(() -> robot.targetWindow().requestFocus());
+        robot.interact(() -> {
+            if(robot.targetWindow() instanceof Stage) {
+                ((Stage)robot.targetWindow()).show();
+            }
+            robot.targetWindow().requestFocus();
+        });
 
     }
 }

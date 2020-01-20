@@ -29,7 +29,6 @@ import org.robotframework.javalib.annotation.RobotKeywords;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 @RobotKeywords
 public class WindowLookup extends TestFxAdapter {
@@ -39,44 +38,24 @@ public class WindowLookup extends TestFxAdapter {
         + "| ${windows}= | List Windows | \n"
         + "| Log List | ${windows} | \n")
     public List<Object> listWindows() {
-            AtomicReference<List<Object>> windows = new AtomicReference<List<Object>>();
-            AtomicReference<JavaFXLibraryNonFatalException> error = new AtomicReference<JavaFXLibraryNonFatalException>();
-            robot.interact(() -> {
-                try {
-                    windows.set(HelperFunctions.mapObjects(robot.listWindows()));
-                } catch (Exception e) {
-                    if(e instanceof JavaFXLibraryNonFatalException) {
-                        error.set((JavaFXLibraryNonFatalException) e);
-                    } else {
-                        error.set(new JavaFXLibraryNonFatalException("Unable to list windows", e));
-                    }
-                }
-            });
-            if(error.get() != null) {
-                throw error.get();
-            }
-            return windows.get();
+        try {
+            return HelperFunctions.mapObjects(robot.listWindows());
+        } catch (Exception e) {
+            if(e instanceof JavaFXLibraryNonFatalException)
+                throw e;
+            throw new JavaFXLibraryNonFatalException("Unable to list windows", e);
+        }
     }
 
     @RobotKeyword("Returns a list of windows that are ordered by proximity to the last target window.\n\n")
     public List<Object> listTargetWindows() {
-        AtomicReference<List<Object>> targetWindows = new AtomicReference<List<Object>>();
-        AtomicReference<JavaFXLibraryNonFatalException> error = new AtomicReference<JavaFXLibraryNonFatalException>();
-        robot.interact(() -> {
-            try {
-                targetWindows.set(HelperFunctions.mapObjects(robot.listTargetWindows()));
-            } catch (Exception e) {
-                if(e instanceof JavaFXLibraryNonFatalException) {
-                    error.set((JavaFXLibraryNonFatalException) e);
-                } else {
-                    error.set(new JavaFXLibraryNonFatalException("Unable to list target windows", e));
-                }
-            }
-        });
-        if(error.get() != null) {
-            throw error.get();
+        try {
+            return HelperFunctions.mapObjects(robot.listTargetWindows());
+        } catch (Exception e) {
+            if(e instanceof JavaFXLibraryNonFatalException)
+                throw e;
+            throw new JavaFXLibraryNonFatalException("Unable to list target windows." , e);
         }
-        return targetWindows.get();
     }
 
     @RobotKeyword("Returns window object.\n\n"
@@ -101,53 +80,28 @@ public class WindowLookup extends TestFxAdapter {
     public Object getWindow(Object locator) {
         RobotLog.info("Getting window using locator \"" + locator + "\"");
 
-        AtomicReference<Object> window = new AtomicReference<>();
-        AtomicReference<JavaFXLibraryNonFatalException> error = new AtomicReference<>();
-
+        try {
             if (locator instanceof String) {
-                if ( ((String) locator).matches("[0-9]+")) {
+                if (((String) locator).startsWith("pattern=")) {
+                    locator = ((String) locator).replace("pattern=","");
+                    return HelperFunctions.mapObject(robot.window((String) locator));
+                } else if ( ((String) locator).matches("[0-9]+")) {
                     return getWindow(Integer.parseInt(locator.toString()));
                 } else {
-                    String resolvedLocator = resolveWindowLocatorString((String) locator);
-                    robot.interact(() -> {
-                        window.set(HelperFunctions.mapObject(robot.window(resolvedLocator)));
-                    });
+                    if (((String) locator).startsWith("title="))
+                        locator = ((String) locator).replace("title=", "");
+                    return HelperFunctions.mapObject(robot.window((String) locator));
                 }
-            } else {
-                robot.interact(() -> {
-                    try {
-                        Method method = MethodUtils.getMatchingAccessibleMethod(robot.getClass(), "window", locator.getClass());
-                        window.set(HelperFunctions.mapObject(method.invoke(robot, locator)));
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        error.set(new JavaFXLibraryNonFatalException("Could not execute get window using locator \"" + locator + "\""));
-                    } catch (Exception e) {
-                        if (e instanceof JavaFXLibraryNonFatalException) {
-                            error.set((JavaFXLibraryNonFatalException) e);
-                        } else {
-                            error.set(new JavaFXLibraryNonFatalException("Unable to find window: \"" + locator.toString() + "\"", e));
-                        }
-                    }
-                });
             }
 
-        if(error.get() != null) {
-            throw error.get();
-        }
-
-        return window.get();
-    }
-
-    /**
-     * This method expects that String is not actually an integer. Replaces `pattern=`
-     * or `title=` with an empty string.
-     */
-    private String resolveWindowLocatorString(String locator) {
-        if (locator.startsWith("pattern=")) {
-            return locator.replace("pattern=", "");
-        } else if(locator.startsWith("title=")) {
-            return locator.replace("title=", "");
-        } else {
-            return locator;
+            Method method = MethodUtils.getMatchingAccessibleMethod(robot.getClass(), "window", locator.getClass());
+            return HelperFunctions.mapObject(method.invoke(robot, locator));
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new JavaFXLibraryNonFatalException("Could not execute get window using locator \"" + locator + "\"");
+        } catch (Exception e) {
+            if (e instanceof JavaFXLibraryNonFatalException)
+                throw e;
+            throw new JavaFXLibraryNonFatalException("Unable to find window: \"" + locator.toString() + "\"", e);
         }
     }
 }

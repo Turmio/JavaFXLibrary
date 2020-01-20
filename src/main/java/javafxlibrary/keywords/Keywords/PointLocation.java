@@ -29,7 +29,6 @@ import org.robotframework.javalib.annotation.RobotKeywords;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicReference;
 
 @RobotKeywords
 public class PointLocation extends TestFxAdapter {
@@ -48,27 +47,17 @@ public class PointLocation extends TestFxAdapter {
     public Object pointTo(Object locator) {
         RobotLog.info("Creating a point query for target \"" + locator + "\"");
 
-        Object resolvedLocator = (locator instanceof String)
-                ? new Finder().find((String) locator)
-                : locator;
+        if (locator instanceof String)
+            locator = new Finder().find((String) locator);
 
-        AtomicReference<Object> point = new AtomicReference<>();
-        AtomicReference<JavaFXLibraryNonFatalException> error = new AtomicReference<>();
-        robot.interact(() -> {
-            try {
-                Method method = MethodUtils.getMatchingAccessibleMethod(robot.getClass(), "point", resolvedLocator.getClass());
-                point.set(HelperFunctions.mapObject(method.invoke(robot, resolvedLocator)));
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                error.set(new JavaFXLibraryNonFatalException("Could not execute point to using locator \"" + resolvedLocator
-                        + "\": " + e.getCause().getMessage()));
-            }
-        });
+        Method method = MethodUtils.getMatchingAccessibleMethod(robot.getClass(), "point", locator.getClass());
 
-        if(error.get() != null) {
-            throw error.get();
+        try {
+            return HelperFunctions.mapObject(method.invoke(robot, locator));
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new JavaFXLibraryNonFatalException("Could not execute point to using locator \"" + locator
+                    + "\": " + e.getCause().getMessage());
         }
-
-        return point.get();
     }
 
     @RobotKeyword("Sets the current position pointer to new location based on x,y coordinates and returns a PointQuery object for it.\n\n"
@@ -77,25 +66,13 @@ public class PointLocation extends TestFxAdapter {
             + "| ${point query}= | Point To Coordinates | 100 | 200 | \n")
     @ArgumentNames({"x", "y"})
     public Object pointToCoordinates(int x, int y) {
-        AtomicReference<Object> point = new AtomicReference<>();
-        AtomicReference<JavaFXLibraryNonFatalException> error = new AtomicReference<>();
-        RobotLog.info("Returning a pointquery to coordinates: [" + x + ", " + y + "]");
-        robot.interact(() -> {
-            try {
-                point.set(HelperFunctions.mapObject(robot.point((double) x, (double) y)));
-            } catch (Exception e) {
-                if(e instanceof JavaFXLibraryNonFatalException) {
-                    error.set((JavaFXLibraryNonFatalException) e);
-                } else {
-                    error.set(new JavaFXLibraryNonFatalException("Unable to point to coordinates: [" + x + ", " + y + "]", e));
-                }
-            }
-        });
-
-        if(error.get() != null) {
-            throw error.get();
+        try {
+            RobotLog.info("Returning a pointquery to coordinates: [" + x + ", " + y + "]");
+            return HelperFunctions.mapObject(robot.point((double) x, (double) y));
+        } catch (Exception e) {
+            if(e instanceof JavaFXLibraryNonFatalException)
+                throw e;
+            throw new JavaFXLibraryNonFatalException("Unable to point to coordinates: [" + x + ", " + y + "]", e);
         }
-
-        return point.get();
     }
 }

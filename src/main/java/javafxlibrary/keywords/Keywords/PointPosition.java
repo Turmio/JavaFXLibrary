@@ -26,6 +26,8 @@ import org.robotframework.javalib.annotation.RobotKeyword;
 import org.robotframework.javalib.annotation.RobotKeywords;
 import org.testfx.api.FxRobotInterface;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 @RobotKeywords
 public class PointPosition extends TestFxAdapter {
 
@@ -36,15 +38,22 @@ public class PointPosition extends TestFxAdapter {
             + "| Set Target Position | TOP_LEFT | \n")
     @ArgumentNames({ "pointPosition" })
     public FxRobotInterface setTargetPosition(String pointPosition) {
+        AtomicReference<JavaFXLibraryNonFatalException> error = new AtomicReference<JavaFXLibraryNonFatalException>();
+        RobotLog.info("Setting new target position as: \"" + pointPosition + "\"");
+        FxRobotInterface chain = robot.interact(() -> {
+            try {
+                robot.targetPos(HelperFunctions.getPosition(pointPosition));
+            } catch (Exception e) {
+                if (e instanceof JavaFXLibraryNonFatalException)
+                    error.set((JavaFXLibraryNonFatalException)e);
+                error.set(new JavaFXLibraryNonFatalException("Unable to set target position: \"" + pointPosition + "\"", e));
+            }
+        });
 
-        try {
-            RobotLog.info("Setting new target position as: \"" + pointPosition + "\"");
-            return robot.targetPos(HelperFunctions.getPosition(pointPosition));
-        } catch (Exception e) {
-            if (e instanceof JavaFXLibraryNonFatalException)
-                throw e;
-            throw new JavaFXLibraryNonFatalException("Unable to set target position: \"" + pointPosition + "\"", e);
+        if(error.get() != null) {
+            throw error.get();
         }
+        return chain;
     }
 
 }
